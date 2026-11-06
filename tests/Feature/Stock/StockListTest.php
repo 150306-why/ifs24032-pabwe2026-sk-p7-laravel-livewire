@@ -31,7 +31,7 @@ class StockListTest extends TestCase
         $this->member = User::factory()->create();
     }
 
-    private function component()
+    private function page()
     {
         return Livewire::actingAs($this->member)->test(StockList::class);
     }
@@ -39,7 +39,7 @@ class StockListTest extends TestCase
     private function xlsxUpload(array $rows, string $name = 'stocks.xlsx'): UploadedFile
     {
         $spreadsheet = new Spreadsheet;
-        $spreadsheet->getActiveSheet()->fromArray($rows, null, 'A1');
+        $spreadsheet->getActiveSheet()->fromArray($rows, null, 'A1', true);
         $path = sys_get_temp_dir().'/'.uniqid('up_', true).'.xlsx';
         (new Xlsx($spreadsheet))->save($path);
         $content = file_get_contents($path);
@@ -78,12 +78,12 @@ class StockListTest extends TestCase
         Stock::factory()->create(['user_id' => $this->member->id, 'name' => 'Milik Saya']);
         Stock::factory()->create(['name' => 'Milik Orang Lain']);
 
-        $this->component()->assertSee('Milik Saya')->assertDontSee('Milik Orang Lain');
+        $this->page()->assertSee('Milik Saya')->assertDontSee('Milik Orang Lain');
     }
 
     public function test_empty_state(): void
     {
-        $this->component()->assertSee('Belum ada barang');
+        $this->page()->assertSee('Belum ada barang');
     }
 
     public function test_search_and_status_filter(): void
@@ -91,7 +91,7 @@ class StockListTest extends TestCase
         Stock::factory()->create(['user_id' => $this->member->id, 'name' => 'Pensil', 'sku' => 'PN-1']);
         Stock::factory()->outOfStock()->create(['user_id' => $this->member->id, 'name' => 'Buku', 'sku' => 'BK-1']);
 
-        $this->component()
+        $this->page()
             ->set('search', 'PN-1')->assertSee('Pensil')->assertDontSee('Buku')
             ->set('search', '')
             ->set('statusFilter', 'out_of_stock')->assertSee('Buku')->assertDontSee('Pensil');
@@ -101,7 +101,7 @@ class StockListTest extends TestCase
 
     public function test_create_stock(): void
     {
-        $this->component()
+        $this->page()
             ->call('openCreate')->assertSet('showForm', true)
             ->set('form.name', 'Pensil 2B')
             ->set('form.sku', 'PN-2B')
@@ -122,7 +122,7 @@ class StockListTest extends TestCase
 
     public function test_create_validation_errors(): void
     {
-        $this->component()
+        $this->page()
             ->call('openCreate')
             ->set('form.name', '')
             ->set('form.quantity', -1)
@@ -136,14 +136,14 @@ class StockListTest extends TestCase
 
     public function test_status_preview_is_rendered_in_modal(): void
     {
-        $this->component()->call('openCreate')->set('form.quantity', 0)->assertSee('Stok Habis');
+        $this->page()->call('openCreate')->set('form.quantity', 0)->assertSee('Stok Habis');
     }
 
     public function test_edit_stock(): void
     {
         $stock = Stock::factory()->create(['user_id' => $this->member->id, 'name' => 'Lama', 'quantity' => 20, 'price' => null, 'sku' => null, 'description' => null]);
 
-        $this->component()
+        $this->page()
             ->call('openEdit', $stock->id)
             ->assertSet('editingId', $stock->id)
             ->assertSet('form.name', 'Lama')
@@ -162,9 +162,9 @@ class StockListTest extends TestCase
     {
         $foreign = Stock::factory()->create(['name' => 'Bukan Milik Saya', 'quantity' => 10]);
 
-        $this->component()->call('openEdit', $foreign->id)->assertForbidden();
-        $this->component()->call('adjust', $foreign->id, 5)->assertForbidden();
-        $this->component()->call('confirmDelete', $foreign->id)->assertForbidden();
+        $this->page()->call('openEdit', $foreign->id)->assertForbidden();
+        $this->page()->call('adjust', $foreign->id, 5)->assertForbidden();
+        $this->page()->call('confirmDelete', $foreign->id)->assertForbidden();
 
         $this->assertSame(10, $foreign->fresh()->quantity);
         $this->assertDatabaseHas('stocks', ['id' => $foreign->id]);
@@ -172,7 +172,7 @@ class StockListTest extends TestCase
 
     public function test_close_form_resets_state(): void
     {
-        $this->component()
+        $this->page()
             ->call('openCreate')
             ->set('form.name', 'X')
             ->call('closeForm')
@@ -184,7 +184,7 @@ class StockListTest extends TestCase
     {
         $stock = Stock::factory()->create(['user_id' => $this->member->id, 'name' => 'Hapus Saya']);
 
-        $this->component()
+        $this->page()
             ->call('confirmDelete', $stock->id)
             ->assertSet('deletingId', $stock->id)
             ->assertSet('deletingName', 'Hapus Saya')
@@ -201,10 +201,10 @@ class StockListTest extends TestCase
     {
         $stock = Stock::factory()->create(['user_id' => $this->member->id, 'quantity' => 10, 'min_stock' => 5]);
 
-        $this->component()->call('adjust', $stock->id, 5)->assertSee('Quantity berhasil diperbarui.');
+        $this->page()->call('adjust', $stock->id, 5)->assertSee('Quantity berhasil diperbarui.');
         $this->assertSame(15, $stock->fresh()->quantity);
 
-        $this->component()->call('adjust', $stock->id, -3);
+        $this->page()->call('adjust', $stock->id, -3);
         $this->assertSame(12, $stock->fresh()->quantity);
     }
 
@@ -212,7 +212,7 @@ class StockListTest extends TestCase
     {
         $stock = Stock::factory()->create(['user_id' => $this->member->id, 'quantity' => 1]);
 
-        $this->component()
+        $this->page()
             ->call('adjust', $stock->id, -2)
             ->assertSee('Quantity tidak boleh kurang dari 0.');
 
@@ -225,7 +225,7 @@ class StockListTest extends TestCase
     {
         Stock::factory()->create(['user_id' => $this->member->id]);
 
-        $this->component()->call('export')->assertFileDownloaded();
+        $this->page()->call('export')->assertFileDownloaded();
     }
 
     public function test_import_success_and_partial_failure(): void
@@ -236,7 +236,7 @@ class StockListTest extends TestCase
             ['', 'X', 1, 'pcs', 1, 5, 'available'],
         ]);
 
-        $this->component()
+        $this->page()
             ->call('openImport')->assertSet('showImport', true)
             ->set('importFile', $file)
             ->call('import')
@@ -252,7 +252,7 @@ class StockListTest extends TestCase
 
     public function test_import_with_invalid_header_shows_error(): void
     {
-        $this->component()
+        $this->page()
             ->set('importFile', $this->xlsxUpload([['foo', 'bar'], [1, 2]]))
             ->call('import')
             ->assertHasErrors(['importFile']);
@@ -262,9 +262,9 @@ class StockListTest extends TestCase
 
     public function test_import_validates_file_presence_and_extension(): void
     {
-        $this->component()->call('import')->assertHasErrors(['importFile' => 'required']);
+        $this->page()->call('import')->assertHasErrors(['importFile' => 'required']);
 
-        $this->component()
+        $this->page()
             ->set('importFile', UploadedFile::fake()->create('data.pdf', 10))
             ->call('import')
             ->assertHasErrors(['importFile']);
@@ -276,7 +276,7 @@ class StockListTest extends TestCase
     {
         $this->stubAi([$this->aiItem('Kabel USB'), $this->aiItem('Mouse', 2, 5), $this->aiItem('Keyboard')]);
 
-        $this->component()
+        $this->page()
             ->call('openAi')->assertSet('showAi', true)
             ->set('aiPrompt', 'perlengkapan komputer')
             ->set('aiCount', 3)
@@ -300,7 +300,7 @@ class StockListTest extends TestCase
     {
         $this->stubAi([$this->aiItem('Kabel USB')]);
 
-        $this->component()
+        $this->page()
             ->set('aiPrompt', 'kabel')
             ->call('generateAi')
             ->call('saveAi')
@@ -313,7 +313,7 @@ class StockListTest extends TestCase
     {
         $this->stubAi([$this->aiItem('A1'), $this->aiItem('B2')]);
 
-        $this->component()
+        $this->page()
             ->set('aiPrompt', 'abc')
             ->call('generateAi')
             ->call('selectAllAi')
@@ -328,7 +328,7 @@ class StockListTest extends TestCase
         $invalid = new GeneratedStockItem('', null, null, 1, 'pcs', null, 5, StockStatus::AVAILABLE);
         $this->stubAi([$invalid]);
 
-        $this->component()
+        $this->page()
             ->set('aiPrompt', 'abc')
             ->call('generateAi')
             ->set('aiSelected', ['0', '99'])
@@ -342,7 +342,8 @@ class StockListTest extends TestCase
     {
         $this->stubAi(new RuntimeException('Layanan AI sedang bermasalah.'));
 
-        $this->component()
+        $this->page()
+            ->call('openAi')
             ->set('aiPrompt', 'abc')
             ->call('generateAi')
             ->assertHasErrors(['aiPrompt'])
@@ -351,17 +352,17 @@ class StockListTest extends TestCase
 
     public function test_ai_validation_and_close(): void
     {
-        $this->component()
+        $this->page()
             ->call('generateAi')
             ->assertHasErrors(['aiPrompt' => 'required']);
 
-        $this->component()
+        $this->page()
             ->set('aiPrompt', 'abc')
             ->set('aiCount', 50)
             ->call('generateAi')
             ->assertHasErrors(['aiCount']);
 
-        $this->component()
+        $this->page()
             ->call('openAi')
             ->set('aiPrompt', 'abc')
             ->call('closeAi')

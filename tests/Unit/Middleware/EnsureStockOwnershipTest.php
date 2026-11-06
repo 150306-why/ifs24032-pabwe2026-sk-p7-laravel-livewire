@@ -16,7 +16,7 @@ class EnsureStockOwnershipTest extends TestCase
 {
     use RefreshDatabase;
 
-    private function dispatch(?User $user, ?Stock $stock)
+    private function runMiddleware(?User $user, ?Stock $stock)
     {
         $request = Request::create('/stocks/1');
         $request->setUserResolver(fn () => $user);
@@ -36,25 +36,25 @@ class EnsureStockOwnershipTest extends TestCase
         $user = User::factory()->create();
         $stock = Stock::factory()->create(['user_id' => $user->id]);
 
-        $this->assertSame('ok', $this->dispatch($user, $stock)->getContent());
+        $this->assertSame('ok', $this->runMiddleware($user, $stock)->getContent());
     }
 
     public function test_route_without_stock_parameter_passes(): void
     {
-        $this->assertSame('ok', $this->dispatch(User::factory()->create(), null)->getContent());
+        $this->assertSame('ok', $this->runMiddleware(User::factory()->create(), null)->getContent());
     }
 
     public function test_non_owner_gets_403(): void
     {
         $this->expectException(HttpException::class);
 
-        $this->dispatch(User::factory()->create(), Stock::factory()->create());
+        $this->runMiddleware(User::factory()->create(), Stock::factory()->create());
     }
 
     public function test_guest_gets_403(): void
     {
         $this->expectException(HttpException::class);
 
-        $this->dispatch(null, Stock::factory()->create());
+        $this->runMiddleware(null, Stock::factory()->create());
     }
 }

@@ -38,14 +38,14 @@ class StockDetailTest extends TestCase
         ]);
     }
 
-    private function component(?Stock $stock = null, ?User $user = null)
+    private function page(?Stock $stock = null, ?User $user = null)
     {
         return Livewire::actingAs($user ?? $this->member)->test(StockDetail::class, ['stock' => $stock ?? $this->stock]);
     }
 
     public function test_shows_stock_information_and_rendered_markdown(): void
     {
-        $this->component()
+        $this->page()
             ->assertSee('Pensil 2B')
             ->assertSee('PN-2B')
             ->assertSee('Rp 2.500')
@@ -57,27 +57,27 @@ class StockDetailTest extends TestCase
     {
         $stock = Stock::factory()->create(['user_id' => $this->member->id, 'description' => null, 'price' => null]);
 
-        $this->component($stock)->assertSee('Belum ada deskripsi.');
+        $this->page($stock)->assertSee('Belum ada deskripsi.');
     }
 
     public function test_markdown_is_sanitized(): void
     {
         $this->stock->update(['description' => "<script>alert(1)</script>\n\n[x](javascript:alert(1))"]);
 
-        $this->component($this->stock->fresh())
+        $this->page($this->stock->fresh())
             ->assertDontSee('<script>', false)
             ->assertDontSee('javascript:alert', false);
     }
 
     public function test_other_member_and_admin_cannot_open_detail(): void
     {
-        $this->component($this->stock, User::factory()->create())->assertForbidden();
-        $this->component($this->stock, User::factory()->admin()->create())->assertForbidden();
+        $this->page($this->stock, User::factory()->create())->assertForbidden();
+        $this->page($this->stock, User::factory()->admin()->create())->assertForbidden();
     }
 
     public function test_edit_stock(): void
     {
-        $this->component()
+        $this->page()
             ->call('openEdit')
             ->assertSet('showEdit', true)
             ->assertSet('form.name', 'Pensil 2B')
@@ -95,7 +95,7 @@ class StockDetailTest extends TestCase
 
     public function test_edit_validation_and_cancel(): void
     {
-        $this->component()
+        $this->page()
             ->call('openEdit')
             ->set('form.name', '')
             ->call('save')
@@ -108,28 +108,28 @@ class StockDetailTest extends TestCase
 
     public function test_adjust_quantity_add_and_subtract(): void
     {
-        $this->component()
+        $this->page()
             ->set('adjustAmount', 5)
             ->call('adjust', 1)
             ->assertSee('Quantity berhasil diperbarui.');
         $this->assertSame(15, $this->stock->fresh()->quantity);
 
-        $this->component()->set('adjustAmount', 3)->call('adjust', -1);
+        $this->page()->set('adjustAmount', 3)->call('adjust', -1);
         $this->assertSame(12, $this->stock->fresh()->quantity);
     }
 
     public function test_adjust_cannot_go_negative_or_use_invalid_amount(): void
     {
-        $this->component()->set('adjustAmount', 11)->call('adjust', -1)->assertHasErrors(['adjustAmount']);
-        $this->component()->set('adjustAmount', 0)->call('adjust', 1)->assertHasErrors(['adjustAmount']);
-        $this->component()->set('adjustAmount', 'abc')->call('adjust', 1)->assertHasErrors(['adjustAmount']);
+        $this->page()->set('adjustAmount', 11)->call('adjust', -1)->assertHasErrors(['adjustAmount']);
+        $this->page()->set('adjustAmount', 0)->call('adjust', 1)->assertHasErrors(['adjustAmount']);
+        $this->page()->set('adjustAmount', 'abc')->call('adjust', 1)->assertHasErrors(['adjustAmount']);
 
         $this->assertSame(10, $this->stock->fresh()->quantity);
     }
 
     public function test_upload_replace_and_remove_cover(): void
     {
-        $this->component()
+        $this->page()
             ->set('cover', UploadedFile::fake()->image('cover.jpg'))
             ->call('uploadCover')
             ->assertHasNoErrors()
@@ -139,7 +139,7 @@ class StockDetailTest extends TestCase
         $this->assertNotNull($path);
         Storage::disk('public')->assertExists($path);
 
-        $this->component($this->stock->fresh())->call('removeCover')->assertSee('Cover berhasil dihapus.');
+        $this->page($this->stock->fresh())->call('removeCover')->assertSee('Cover berhasil dihapus.');
 
         $this->assertNull($this->stock->fresh()->cover_image_path);
         Storage::disk('public')->assertMissing($path);
@@ -149,19 +149,19 @@ class StockDetailTest extends TestCase
     {
         $this->stock->update(['cover_image_path' => 'stock-covers/demo.jpg']);
 
-        $this->component($this->stock->fresh())->assertSee('stock-covers/demo.jpg')->assertSee('Hapus cover');
+        $this->page($this->stock->fresh())->assertSee('stock-covers/demo.jpg')->assertSee('Hapus cover');
     }
 
     public function test_cover_validation(): void
     {
-        $this->component()->call('uploadCover')->assertHasErrors(['cover' => 'required']);
+        $this->page()->call('uploadCover')->assertHasErrors(['cover' => 'required']);
 
-        $this->component()
+        $this->page()
             ->set('cover', UploadedFile::fake()->create('dokumen.pdf', 100, 'application/pdf'))
             ->call('uploadCover')
             ->assertHasErrors(['cover']);
 
-        $this->component()
+        $this->page()
             ->set('cover', UploadedFile::fake()->image('besar.jpg')->size(5000))
             ->call('uploadCover')
             ->assertHasErrors(['cover']);
@@ -169,7 +169,7 @@ class StockDetailTest extends TestCase
 
     public function test_delete_redirects_to_list(): void
     {
-        $this->component()
+        $this->page()
             ->call('confirmDelete')
             ->assertSet('showDelete', true)
             ->assertSee('Hapus barang?')

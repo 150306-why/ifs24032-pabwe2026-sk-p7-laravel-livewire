@@ -49,7 +49,7 @@ class StockExcelServiceTest extends TestCase
     private function makeXlsx(array $rows): string
     {
         $spreadsheet = new Spreadsheet;
-        $spreadsheet->getActiveSheet()->fromArray($rows, null, 'A1');
+        $spreadsheet->getActiveSheet()->fromArray($rows, null, 'A1', true);
 
         $path = sys_get_temp_dir().'/'.uniqid('stk_', true).'.xlsx';
         (new Xlsx($spreadsheet))->save($path);

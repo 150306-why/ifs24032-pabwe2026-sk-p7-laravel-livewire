@@ -25,19 +25,19 @@ class ProfileTest extends TestCase
         $this->user = User::factory()->create(['name' => 'Budi', 'username' => 'budi', 'email' => 'budi@x.test', 'password' => 'lama12345']);
     }
 
-    private function component()
+    private function page()
     {
         return Livewire::actingAs($this->user)->test(Profile::class);
     }
 
     public function test_form_is_prefilled(): void
     {
-        $this->component()->assertSet('name', 'Budi')->assertSet('username', 'budi')->assertSet('email', 'budi@x.test');
+        $this->page()->assertSet('name', 'Budi')->assertSet('username', 'budi')->assertSet('email', 'budi@x.test');
     }
 
     public function test_update_profile(): void
     {
-        $this->component()
+        $this->page()
             ->set('name', 'Budi Baru')
             ->set('username', 'budibaru')
             ->set('email', 'baru@x.test')
@@ -52,9 +52,9 @@ class ProfileTest extends TestCase
     {
         User::factory()->create(['username' => 'dipakai', 'email' => 'dipakai@x.test']);
 
-        $this->component()->call('updateProfile')->assertHasNoErrors();
+        $this->page()->call('updateProfile')->assertHasNoErrors();
 
-        $this->component()
+        $this->page()
             ->set('username', 'dipakai')
             ->set('email', 'dipakai@x.test')
             ->call('updateProfile')
@@ -63,7 +63,7 @@ class ProfileTest extends TestCase
 
     public function test_change_password(): void
     {
-        $this->component()
+        $this->page()
             ->set('current_password', 'lama12345')
             ->set('password', 'baru12345')
             ->set('password_confirmation', 'baru12345')
@@ -77,14 +77,14 @@ class ProfileTest extends TestCase
 
     public function test_change_password_failures(): void
     {
-        $this->component()
+        $this->page()
             ->set('current_password', 'salah')
             ->set('password', 'baru12345')
             ->set('password_confirmation', 'baru12345')
             ->call('updatePassword')
             ->assertHasErrors(['current_password']);
 
-        $this->component()
+        $this->page()
             ->set('current_password', 'lama12345')
             ->set('password', 'pendek')
             ->set('password_confirmation', 'beda')
@@ -96,7 +96,7 @@ class ProfileTest extends TestCase
 
     public function test_photo_upload_and_removal(): void
     {
-        $this->component()
+        $this->page()
             ->set('photo', UploadedFile::fake()->image('foto.png'))
             ->call('updatePhoto')
             ->assertHasNoErrors()
@@ -106,15 +106,15 @@ class ProfileTest extends TestCase
         $this->assertNotNull($path);
         Storage::disk('public')->assertExists($path);
 
-        $this->component()->assertSee('Hapus foto')->call('removePhoto')->assertSee('Foto profil dihapus.');
+        $this->page()->assertSee('Hapus foto')->call('removePhoto')->assertSee('Foto profil dihapus.');
         $this->assertNull($this->user->fresh()->profile_photo_path);
     }
 
     public function test_photo_validation(): void
     {
-        $this->component()->call('updatePhoto')->assertHasErrors(['photo' => 'required']);
+        $this->page()->call('updatePhoto')->assertHasErrors(['photo' => 'required']);
 
-        $this->component()
+        $this->page()
             ->set('photo', UploadedFile::fake()->create('x.pdf', 10, 'application/pdf'))
             ->call('updatePhoto')
             ->assertHasErrors(['photo']);
