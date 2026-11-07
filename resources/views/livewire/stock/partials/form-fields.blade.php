@@ -39,20 +39,26 @@
     </div>
     <div class="sm:col-span-2">
         <span id="form-description-label" class="block text-sm font-medium">Deskripsi (Markdown)</span>
-        <div wire:ignore class="mt-1" role="group" aria-labelledby="form-description-label"
-             x-data
-             x-init="
-                const editor = new toastui.Editor({
-                    el: $refs.editor,
-                    height: '260px',
-                    initialEditType: 'markdown',
-                    previewStyle: 'tab',
-                    usageStatistics: false,
-                    initialValue: $wire.get('form.description') ?? '',
-                });
-                editor.on('change', () => $wire.set('form.description', editor.getMarkdown(), false));
-             ">
-            <div x-ref="editor"></div>
+        <div x-data="{ failed: false }">
+            <div wire:ignore class="mt-1" role="group" aria-labelledby="form-description-label" x-show="!failed"
+                 x-init="
+                    window.loadToastEditor().then((Editor) => {
+                        const editor = new Editor({
+                            el: $refs.editor,
+                            height: '260px',
+                            initialEditType: 'markdown',
+                            previewStyle: 'tab',
+                            usageStatistics: false,
+                            initialValue: $wire.get('form.description') ?? '',
+                        });
+                        editor.on('change', () => $wire.set('form.description', editor.getMarkdown(), false));
+                    }).catch(() => { failed = true; });
+                 ">
+                <div x-ref="editor"></div>
+            </div>
+            <textarea x-show="failed" style="display: none" id="form-description-fallback" rows="8"
+                      aria-label="Deskripsi (Markdown)" wire:model="form.description"
+                      class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"></textarea>
         </div>
         @error('form.description') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
     </div>

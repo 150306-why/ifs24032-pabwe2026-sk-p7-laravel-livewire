@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="description" content="STOCK THINGS adalah aplikasi manajemen stok dan inventaris barang berbasis web: kelola barang, atur stok masuk dan keluar, import dan export Excel.">
     <title>{{ isset($title) ? $title.' — ' : '' }}STOCK THINGS</title>
 
     @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
@@ -12,7 +13,6 @@
         <script src="https://cdn.tailwindcss.com"></script>
     @endif
 
-    <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css">
     @livewireStyles
 </head>
 <body class="h-full font-sans text-slate-800 antialiased">
@@ -88,7 +88,34 @@
     </main>
 @endauth
 
-<script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
+<script>
+    // Toast UI Editor dimuat HANYA saat editor Markdown dibuka (modal Tambah/Edit, halaman detail),
+    // supaya halaman lain tidak menanggung ~260 KB CSS/JS yang tidak terpakai.
+    window.loadToastEditor = function () {
+        if (window.toastui && window.toastui.Editor) {
+            return Promise.resolve(window.toastui.Editor);
+        }
+        if (window.__toastEditorPromise) {
+            return window.__toastEditorPromise;
+        }
+        window.__toastEditorPromise = new Promise(function (resolve, reject) {
+            var css = document.createElement('link');
+            css.rel = 'stylesheet';
+            css.href = 'https://uicdn.toast.com/editor/3.2.2/toastui-editor.min.css';
+            document.head.appendChild(css);
+
+            var js = document.createElement('script');
+            js.src = 'https://uicdn.toast.com/editor/3.2.2/toastui-editor-all.min.js';
+            js.onload = function () { resolve(window.toastui.Editor); };
+            js.onerror = function () {
+                window.__toastEditorPromise = null;
+                reject(new Error('Editor Markdown gagal dimuat.'));
+            };
+            document.body.appendChild(js);
+        });
+        return window.__toastEditorPromise;
+    };
+</script>
 @livewireScripts
 </body>
 </html>
