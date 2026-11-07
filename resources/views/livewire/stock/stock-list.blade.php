@@ -4,7 +4,7 @@
     <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
             <h1 class="text-2xl font-bold text-slate-900">Inventaris</h1>
-            <p class="text-sm text-slate-500">Kelola barang, stok masuk dan keluar.</p>
+            <p class="text-sm text-slate-600">Kelola barang, stok masuk dan keluar.</p>
         </div>
         <div class="flex flex-wrap gap-2">
             <button type="button" wire:click="export" wire:loading.attr="disabled" wire:target="export"
@@ -21,7 +21,7 @@
     <div class="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
         @foreach ([['Total Barang', $stats['total_items'], 'text-slate-900'], ['Total Quantity', $stats['total_quantity'], 'text-blue-700'], ['Stok Menipis', $stats['low_stock'], 'text-yellow-700'], ['Stok Habis', $stats['out_of_stock'], 'text-red-700']] as [$label, $value, $color])
             <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-                <p class="text-xs font-medium uppercase tracking-wide text-slate-500">{{ $label }}</p>
+                <p class="text-xs font-medium uppercase tracking-wide text-slate-600">{{ $label }}</p>
                 <p class="mt-1 text-2xl font-bold {{ $color }}">{{ number_format($value, 0, ',', '.') }}</p>
             </div>
         @endforeach
@@ -29,21 +29,21 @@
 
     {{-- Search & filter --}}
     <div class="mb-4 flex flex-col gap-3 sm:flex-row">
-        <input type="search" wire:model.live.debounce.300ms="search" placeholder="Cari nama atau SKU..."
+        <input type="search" aria-label="Cari barang berdasarkan nama atau SKU" wire:model.live.debounce.300ms="search" placeholder="Cari nama atau SKU..."
                class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 sm:max-w-sm">
-        <select wire:model.live="statusFilter" class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+        <select aria-label="Filter status barang" wire:model.live="statusFilter" class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
             <option value="">Semua status</option>
             @foreach ($statuses as $status)
                 <option value="{{ $status->value }}">{{ $status->label() }}</option>
             @endforeach
         </select>
-        <span wire:loading wire:target="search,statusFilter" class="self-center text-sm text-slate-500">Memuat...</span>
+        <span wire:loading wire:target="search,statusFilter" class="self-center text-sm text-slate-600">Memuat...</span>
     </div>
 
     {{-- Tabel --}}
     <div class="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
         <table class="min-w-full divide-y divide-slate-200 text-sm">
-            <thead class="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+            <thead class="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">
                 <tr>
                     <th class="px-4 py-3">Barang</th>
                     <th class="px-4 py-3">Quantity</th>
@@ -58,12 +58,12 @@
                     <tr wire:key="stock-{{ $stock->id }}">
                         <td class="px-4 py-3">
                             <a href="{{ route('stocks.show', $stock) }}" class="font-medium text-slate-900 hover:text-blue-700">{{ $stock->name }}</a>
-                            <div class="text-xs text-slate-500">{{ $stock->sku ?: '—' }}</div>
+                            <div class="text-xs text-slate-600">{{ $stock->sku ?: '—' }}</div>
                         </td>
                         <td class="px-4 py-3">
                             <div class="flex items-center gap-2">
                                 <button type="button" wire:click="adjust({{ $stock->id }}, -1)" class="h-7 w-7 rounded border border-slate-300 font-bold hover:bg-slate-100" aria-label="Kurangi">−</button>
-                                <span class="min-w-[3rem] text-center font-semibold">{{ $stock->quantity }} <span class="text-xs font-normal text-slate-500">{{ $stock->unit }}</span></span>
+                                <span class="min-w-[3rem] text-center font-semibold">{{ $stock->quantity }} <span class="text-xs font-normal text-slate-600">{{ $stock->unit }}</span></span>
                                 <button type="button" wire:click="adjust({{ $stock->id }}, 1)" class="h-7 w-7 rounded border border-slate-300 font-bold hover:bg-slate-100" aria-label="Tambah">+</button>
                             </div>
                         </td>
@@ -77,7 +77,7 @@
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="6" class="px-4 py-12 text-center text-slate-500">Belum ada barang. Klik “Tambah Barang” untuk memulai.</td></tr>
+                    <tr><td colspan="6" class="px-4 py-12 text-center text-slate-600">Belum ada barang. Klik “Tambah Barang” untuk memulai.</td></tr>
                 @endforelse
             </tbody>
         </table>
@@ -121,10 +121,10 @@
         <div class="fixed inset-0 z-40 flex items-start justify-center overflow-y-auto bg-slate-900/50 p-4">
             <div class="my-8 w-full max-w-lg rounded-xl bg-white p-6 shadow-xl">
                 <h2 class="text-lg font-semibold">Import dari Excel</h2>
-                <p class="mt-1 text-sm text-slate-500">Header wajib: <code>name, sku, qty, unit, price, min_stock, status</code>. Kolom status dihitung ulang otomatis.</p>
+                <p class="mt-1 text-sm text-slate-600">Header wajib: <code>name, sku, qty, unit, price, min_stock, status</code>. Kolom status dihitung ulang otomatis.</p>
                 <form wire:submit="import" class="mt-4 space-y-3">
-                    <input type="file" wire:model="importFile" accept=".xlsx,.xls" class="block w-full text-sm">
-                    <div wire:loading wire:target="importFile" class="text-sm text-slate-500">Mengunggah file...</div>
+                    <input type="file" aria-label="Pilih file Excel" wire:model="importFile" accept=".xlsx,.xls" class="block w-full text-sm">
+                    <div wire:loading wire:target="importFile" class="text-sm text-slate-600">Mengunggah file...</div>
                     @error('importFile') <p class="text-sm text-red-600">{{ $message }}</p> @enderror
 
                     @if ($importResult)
@@ -155,14 +155,14 @@
         <div class="fixed inset-0 z-40 flex items-start justify-center overflow-y-auto bg-slate-900/50 p-4">
             <div class="my-8 w-full max-w-3xl rounded-xl bg-white p-6 shadow-xl">
                 <h2 class="text-lg font-semibold">AI Stock Generator</h2>
-                <p class="mt-1 text-sm text-slate-500">Jelaskan barang yang ingin dibuat. Hasil hanya disimpan setelah Anda memilihnya.</p>
+                <p class="mt-1 text-sm text-slate-600">Jelaskan barang yang ingin dibuat. Hasil hanya disimpan setelah Anda memilihnya.</p>
 
                 <form wire:submit="generateAi" class="mt-4 space-y-3">
-                    <textarea wire:model="aiPrompt" rows="3" placeholder="Contoh: peralatan tulis kantor untuk toko buku kecil" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"></textarea>
+                    <textarea aria-label="Prompt AI" wire:model="aiPrompt" rows="3" placeholder="Contoh: peralatan tulis kantor untuk toko buku kecil" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"></textarea>
                     @error('aiPrompt') <p class="text-sm text-red-600">{{ $message }}</p> @enderror
                     <div class="flex items-center gap-3">
-                        <label class="text-sm">Jumlah item</label>
-                        <input type="number" min="1" max="10" wire:model="aiCount" class="w-20 rounded-lg border border-slate-300 px-2 py-1 text-sm">
+                        <label for="ai-count" class="text-sm">Jumlah item</label>
+                        <input id="ai-count" type="number" min="1" max="10" wire:model="aiCount" class="w-20 rounded-lg border border-slate-300 px-2 py-1 text-sm">
                         <button type="submit" wire:loading.attr="disabled" wire:target="generateAi" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60">
                             <span wire:loading.remove wire:target="generateAi">Generate</span><span wire:loading wire:target="generateAi">AI sedang bekerja...</span>
                         </button>
@@ -178,14 +178,14 @@
                         </div>
                         <div class="overflow-x-auto rounded-lg border border-slate-200">
                             <table class="min-w-full divide-y divide-slate-200 text-sm">
-                                <thead class="bg-slate-50 text-left text-xs uppercase text-slate-500">
-                                    <tr><th class="px-3 py-2"></th><th class="px-3 py-2">Nama</th><th class="px-3 py-2">SKU</th><th class="px-3 py-2">Qty</th><th class="px-3 py-2">Harga</th><th class="px-3 py-2">Status</th></tr>
+                                <thead class="bg-slate-50 text-left text-xs uppercase text-slate-600">
+                                    <tr><th class="px-3 py-2"><span class="sr-only">Pilih</span></th><th class="px-3 py-2">Nama</th><th class="px-3 py-2">SKU</th><th class="px-3 py-2">Qty</th><th class="px-3 py-2">Harga</th><th class="px-3 py-2">Status</th></tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-100">
                                     @foreach ($aiItems as $i => $item)
                                         <tr wire:key="ai-{{ $i }}">
-                                            <td class="px-3 py-2"><input type="checkbox" wire:model="aiSelected" value="{{ $i }}"></td>
-                                            <td class="px-3 py-2"><div class="font-medium">{{ $item['name'] }}</div><div class="text-xs text-slate-500">{{ \Illuminate\Support\Str::limit($item['description'] ?? '', 80) }}</div></td>
+                                            <td class="px-3 py-2"><input type="checkbox" aria-label="Pilih {{ $item['name'] }}" wire:model="aiSelected" value="{{ $i }}"></td>
+                                            <td class="px-3 py-2"><div class="font-medium">{{ $item['name'] }}</div><div class="text-xs text-slate-600">{{ \Illuminate\Support\Str::limit($item['description'] ?? '', 80) }}</div></td>
                                             <td class="px-3 py-2">{{ $item['sku'] ?? '—' }}</td>
                                             <td class="px-3 py-2">{{ $item['quantity'] }} {{ $item['unit'] }}</td>
                                             <td class="px-3 py-2">{{ $item['price'] !== null ? 'Rp '.number_format((float) $item['price'], 0, ',', '.') : '—' }}</td>
@@ -202,7 +202,7 @@
                 <div class="mt-6 flex justify-end gap-2">
                     <button type="button" wire:click="closeAi" class="rounded-lg border border-slate-300 px-4 py-2 text-sm hover:bg-slate-100">Tutup</button>
                     @if ($aiItems)
-                        <button type="button" wire:click="saveAi" wire:loading.attr="disabled" wire:target="saveAi" class="rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700 disabled:opacity-60">Simpan item terpilih</button>
+                        <button type="button" wire:click="saveAi" wire:loading.attr="disabled" wire:target="saveAi" class="rounded-lg bg-green-700 px-4 py-2 text-sm font-semibold text-white hover:bg-green-800 disabled:opacity-60">Simpan item terpilih</button>
                     @endif
                 </div>
             </div>

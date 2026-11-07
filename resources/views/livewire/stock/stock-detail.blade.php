@@ -9,16 +9,16 @@
                 <div class="flex flex-wrap items-start justify-between gap-3">
                     <div>
                         <h1 class="text-2xl font-bold text-slate-900">{{ $stock->name }}</h1>
-                        <p class="text-sm text-slate-500">SKU: {{ $stock->sku ?: '—' }}</p>
+                        <p class="text-sm text-slate-600">SKU: {{ $stock->sku ?: '—' }}</p>
                     </div>
                     <span class="inline-flex rounded-full px-3 py-1 text-sm font-medium {{ $stock->status->badgeClass() }}">{{ $stock->status->label() }}</span>
                 </div>
 
                 <dl class="mt-6 grid grid-cols-2 gap-4 text-sm sm:grid-cols-4">
-                    <div><dt class="text-slate-500">Quantity</dt><dd class="text-xl font-bold">{{ $stock->quantity }}</dd></div>
-                    <div><dt class="text-slate-500">Unit</dt><dd class="text-xl font-bold">{{ $stock->unit }}</dd></div>
-                    <div><dt class="text-slate-500">Harga</dt><dd class="text-xl font-bold">{{ $stock->price !== null ? 'Rp '.number_format((float) $stock->price, 0, ',', '.') : '—' }}</dd></div>
-                    <div><dt class="text-slate-500">Minimum Stock</dt><dd class="text-xl font-bold">{{ $stock->min_stock }}</dd></div>
+                    <div><dt class="text-slate-600">Quantity</dt><dd class="text-xl font-bold">{{ $stock->quantity }}</dd></div>
+                    <div><dt class="text-slate-600">Unit</dt><dd class="text-xl font-bold">{{ $stock->unit }}</dd></div>
+                    <div><dt class="text-slate-600">Harga</dt><dd class="text-xl font-bold">{{ $stock->price !== null ? 'Rp '.number_format((float) $stock->price, 0, ',', '.') : '—' }}</dd></div>
+                    <div><dt class="text-slate-600">Minimum Stock</dt><dd class="text-xl font-bold">{{ $stock->min_stock }}</dd></div>
                 </dl>
 
                 <div class="mt-6 flex flex-wrap gap-2">
@@ -32,7 +32,7 @@
                 @if ($stock->description)
                     <div class="space-y-3 text-sm leading-6 [&_h1]:text-xl [&_h1]:font-bold [&_h2]:text-lg [&_h2]:font-semibold [&_h3]:font-semibold [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_a]:text-blue-600 [&_a]:underline [&_code]:rounded [&_code]:bg-slate-100 [&_code]:px-1 [&_blockquote]:border-l-4 [&_blockquote]:pl-3 [&_blockquote]:text-slate-600">{!! $descriptionHtml !!}</div>
                 @else
-                    <p class="text-sm text-slate-500">Belum ada deskripsi.</p>
+                    <p class="text-sm text-slate-600">Belum ada deskripsi.</p>
                 @endif
             </div>
         </div>
@@ -45,11 +45,11 @@
                     <img src="{{ $stock->coverUrl() }}" alt="Cover {{ $stock->name }}" class="mb-3 w-full rounded-lg object-cover">
                     <button type="button" wire:click="removeCover" class="mb-3 text-sm text-red-600 hover:underline">Hapus cover</button>
                 @else
-                    <div class="mb-3 flex h-40 items-center justify-center rounded-lg bg-slate-100 text-sm text-slate-400">Belum ada cover</div>
+                    <div class="mb-3 flex h-40 items-center justify-center rounded-lg bg-slate-100 text-sm text-slate-700">Belum ada cover</div>
                 @endif
                 <form wire:submit="uploadCover" class="space-y-2">
-                    <input type="file" wire:model="cover" accept="image/png,image/jpeg,image/webp" class="block w-full text-sm">
-                    <div wire:loading wire:target="cover" class="text-sm text-slate-500">Mengunggah...</div>
+                    <input id="cover-input" aria-label="Pilih file cover" type="file" wire:model="cover" accept="image/png,image/jpeg,image/webp" class="block w-full text-sm">
+                    <div wire:loading wire:target="cover" class="text-sm text-slate-600">Mengunggah...</div>
                     @error('cover') <p class="text-sm text-red-600">{{ $message }}</p> @enderror
                     <button type="submit" wire:loading.attr="disabled" wire:target="uploadCover,cover" class="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium hover:bg-slate-100 disabled:opacity-60">Unggah cover</button>
                 </form>
@@ -60,9 +60,9 @@
                 <h2 class="mb-3 text-lg font-semibold">Adjust Quantity</h2>
                 <div class="flex items-center gap-2">
                     <button type="button" wire:click="adjust(-1)" class="rounded-lg border border-slate-300 px-3 py-2 font-bold hover:bg-slate-100">−</button>
-                    <input type="number" min="1" wire:model="adjustAmount" class="w-24 rounded-lg border border-slate-300 px-3 py-2 text-center text-sm">
+                    <input id="adjust-amount" aria-label="Jumlah penyesuaian quantity" type="number" min="1" wire:model="adjustAmount" class="w-24 rounded-lg border border-slate-300 px-3 py-2 text-center text-sm">
                     <button type="button" wire:click="adjust(1)" class="rounded-lg border border-slate-300 px-3 py-2 font-bold hover:bg-slate-100">+</button>
-                    <span wire:loading wire:target="adjust" class="text-sm text-slate-500">...</span>
+                    <span wire:loading wire:target="adjust" class="text-sm text-slate-600">...</span>
                 </div>
                 @error('adjustAmount') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
             </div>

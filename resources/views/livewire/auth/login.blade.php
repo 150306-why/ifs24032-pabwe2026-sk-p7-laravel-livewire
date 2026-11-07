@@ -1,6 +1,6 @@
 <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
     <h1 class="text-xl font-semibold text-slate-900">Masuk ke akun Anda</h1>
-    <p class="mt-1 text-sm text-slate-500">Kelola inventaris barang Anda dengan mudah.</p>
+    <p class="mt-1 text-sm text-slate-600">Kelola inventaris barang Anda dengan mudah.</p>
 
     <form wire:submit="submit" class="mt-6 space-y-4">
         <div>
@@ -25,7 +25,7 @@
         </button>
     </form>
 
-    <p class="mt-4 text-center text-sm text-slate-500">
-        Belum punya akun? <a href="{{ route('register') }}" class="font-medium text-blue-600 hover:underline">Daftar</a>
+    <p class="mt-4 text-center text-sm text-slate-600">
+        Belum punya akun? <a href="{{ route('register') }}" class="font-medium text-blue-700 underline">Daftar</a>
     </p>
 </div>

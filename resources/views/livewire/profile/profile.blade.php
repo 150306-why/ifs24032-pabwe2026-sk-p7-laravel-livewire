@@ -13,8 +13,8 @@
                 <span class="flex h-20 w-20 items-center justify-center rounded-full bg-blue-100 text-2xl font-semibold text-blue-700">{{ $user->initials() }}</span>
             @endif
             <form wire:submit="updatePhoto" class="space-y-2">
-                <input type="file" wire:model="photo" accept="image/png,image/jpeg,image/webp" class="block text-sm">
-                <div wire:loading wire:target="photo" class="text-sm text-slate-500">Mengunggah...</div>
+                <input id="profile-photo" aria-label="Pilih foto profil" type="file" wire:model="photo" accept="image/png,image/jpeg,image/webp" class="block text-sm">
+                <div wire:loading wire:target="photo" class="text-sm text-slate-600">Mengunggah...</div>
                 @error('photo') <p class="text-sm text-red-600">{{ $message }}</p> @enderror
                 <div class="flex gap-2">
                     <button type="submit" wire:loading.attr="disabled" wire:target="updatePhoto,photo" class="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60">Simpan foto</button>
@@ -29,9 +29,9 @@
     <section class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
         <h2 class="mb-4 text-lg font-semibold">Informasi Profil</h2>
         <form wire:submit="updateProfile" class="space-y-4">
-            <div><label class="block text-sm font-medium">Nama</label><input type="text" wire:model="name" class="{{ $inputClass }}">@error('name')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div>
-            <div><label class="block text-sm font-medium">Username</label><input type="text" wire:model="username" class="{{ $inputClass }}">@error('username')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div>
-            <div><label class="block text-sm font-medium">Email</label><input type="email" wire:model="email" class="{{ $inputClass }}">@error('email')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div>
+            <div><label for="profile-name" class="block text-sm font-medium">Nama</label><input id="profile-name" type="text" wire:model="name" class="{{ $inputClass }}">@error('name')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div>
+            <div><label for="profile-username" class="block text-sm font-medium">Username</label><input id="profile-username" type="text" wire:model="username" class="{{ $inputClass }}">@error('username')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div>
+            <div><label for="profile-email" class="block text-sm font-medium">Email</label><input id="profile-email" type="email" wire:model="email" class="{{ $inputClass }}">@error('email')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div>
             <button type="submit" wire:loading.attr="disabled" wire:target="updateProfile" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60">Simpan</button>
         </form>
     </section>
@@ -39,9 +39,9 @@
     <section class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
         <h2 class="mb-4 text-lg font-semibold">Ubah Password</h2>
         <form wire:submit="updatePassword" class="space-y-4">
-            <div><label class="block text-sm font-medium">Password saat ini</label><input type="password" wire:model="current_password" class="{{ $inputClass }}">@error('current_password')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div>
-            <div><label class="block text-sm font-medium">Password baru</label><input type="password" wire:model="password" class="{{ $inputClass }}">@error('password')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div>
-            <div><label class="block text-sm font-medium">Konfirmasi password baru</label><input type="password" wire:model="password_confirmation" class="{{ $inputClass }}"></div>
+            <div><label for="profile-current-password" class="block text-sm font-medium">Password saat ini</label><input id="profile-current-password" type="password" wire:model="current_password" class="{{ $inputClass }}">@error('current_password')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div>
+            <div><label for="profile-password" class="block text-sm font-medium">Password baru</label><input id="profile-password" type="password" wire:model="password" class="{{ $inputClass }}">@error('password')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror</div>
+            <div><label for="profile-password-confirmation" class="block text-sm font-medium">Konfirmasi password baru</label><input id="profile-password-confirmation" type="password" wire:model="password_confirmation" class="{{ $inputClass }}"></div>
             <button type="submit" wire:loading.attr="disabled" wire:target="updatePassword" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60">Ubah password</button>
         </form>
     </section>

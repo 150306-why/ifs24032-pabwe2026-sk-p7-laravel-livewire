@@ -20,13 +20,13 @@
     @php($authUser = auth()->user())
     <div x-data="{ open: false }" class="min-h-full">
         {{-- Sidebar --}}
-        <aside class="fixed inset-y-0 left-0 z-30 w-64 transform border-r border-slate-200 bg-white transition-transform lg:translate-x-0"
+        <aside aria-label="Sidebar" class="fixed inset-y-0 left-0 z-30 w-64 transform border-r border-slate-200 bg-white transition-transform lg:translate-x-0"
                :class="open ? 'translate-x-0' : '-translate-x-full'">
             <div class="flex h-16 items-center gap-2 border-b border-slate-200 px-6">
                 <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-sm font-bold text-white">ST</span>
                 <span class="text-lg font-bold tracking-tight text-slate-900">STOCK THINGS</span>
             </div>
-            <nav class="space-y-1 p-4 text-sm font-medium">
+            <nav aria-label="Navigasi utama" class="space-y-1 p-4 text-sm font-medium">
                 @if ($authUser->isMember())
                     <a href="{{ route('stocks.index') }}"
                        class="flex items-center gap-3 rounded-lg px-3 py-2 {{ request()->routeIs('stocks.*') ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:bg-slate-100' }}">
@@ -63,7 +63,7 @@
                         @endif
                         <span class="hidden text-sm sm:block">
                             <span class="block font-medium leading-4">{{ $authUser->name }}</span>
-                            <span class="text-xs uppercase text-slate-500">{{ $authUser->role }}</span>
+                            <span class="text-xs uppercase text-slate-600">{{ $authUser->role }}</span>
                         </span>
                     </a>
                     <form method="POST" action="{{ route('logout') }}">
@@ -79,13 +79,13 @@
         </div>
     </div>
 @else
-    <div class="flex min-h-full flex-col items-center justify-center px-4 py-12">
+    <main class="flex min-h-full flex-col items-center justify-center px-4 py-12">
         <div class="mb-6 flex items-center gap-2">
             <span class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600 font-bold text-white">ST</span>
             <span class="text-2xl font-bold tracking-tight text-slate-900">STOCK THINGS</span>
         </div>
         <div class="w-full max-w-md">{{ $slot }}</div>
-    </div>
+    </main>
 @endauth
 
 <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
